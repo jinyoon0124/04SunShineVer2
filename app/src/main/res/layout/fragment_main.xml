@@ -24,4 +24,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null" />
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/empty_string"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+
 </FrameLayout>
