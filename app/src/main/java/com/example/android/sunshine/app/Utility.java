@@ -262,4 +262,13 @@ public class Utility {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         return sp.getInt(c.getString(R.string.pref_location_status_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
     }
+
+    public static void resetCurrentLocationStatus(Context c){
+        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor e = spf.edit();
+        e.putInt(c.getString(R.string.pref_location_status_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
+        e.apply(); //use apply instead of commint if this will be called in UI
+    }
+
+
 }
