@@ -95,7 +95,7 @@ public class SettingsActivity extends PreferenceActivity
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
-        }else if(key.equals(getString(R.string.pref_location_status_key))){
+        }else if(key.equals(getString(R.string.pref_location_key))){
             @SunshineSyncAdapter.LocationStatus int status = Utility.getLocationStatus(this);
             switch(status){
                 case SunshineSyncAdapter.LOCATION_STATUS_OK:
@@ -136,6 +136,9 @@ public class SettingsActivity extends PreferenceActivity
         } else if ( key.equals(getString(R.string.pref_units_key)) ) {
             // units have changed. update lists of weather entries accordingly
             getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
+        } else if (key.equals(getString(R.string.pref_location_status_key))){
+            Preference locationPreference = findPreference(getString(R.string.pref_location_key));
+            bindPreferenceSummaryToValue(locationPreference);
         }
     }
 
