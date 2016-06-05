@@ -122,7 +122,7 @@
             </intent-filter>
         </service>
         <service
-            android:name="gcm.RegistrationIntentService"
+            android:name=".gcm.RegistrationIntentService"
             android:exported="false">
         </service>
 
