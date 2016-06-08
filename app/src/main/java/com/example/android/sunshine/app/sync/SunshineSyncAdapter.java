@@ -392,7 +392,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 //                    Bitmap largeIcon = BitmapFactory.decodeResource(resources,
 //                            Utility.getArtResourceForWeatherCondition(weatherId));
                     int artResourceId=Utility.getArtResourceForWeatherCondition(weatherId);
-                    String artUrl = Utility.getArtUrlForWeatherCondiction(context, weatherId);
+                    String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
 
                     //On Honeycomb and higher devices, we can retrieve the size of the large icon
                     //prior to that, we use a fixed size

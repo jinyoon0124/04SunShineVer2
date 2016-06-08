@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
 
         Toolbar toolbar=(Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        //getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
         if (findViewById(R.id.weather_detail_container) != null) {
