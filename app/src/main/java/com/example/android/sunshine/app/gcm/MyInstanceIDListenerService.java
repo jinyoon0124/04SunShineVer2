@@ -17,8 +17,6 @@
 package com.example.android.sunshine.app.gcm;
 
 import android.content.Intent;
-
-import com.example.android.sunshine.app.gcm.RegistrationIntentService;
 import com.google.android.gms.iid.InstanceIDListenerService;
 
 public class MyInstanceIDListenerService extends InstanceIDListenerService {

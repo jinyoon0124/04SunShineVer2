@@ -15,12 +15,9 @@
  */
 package com.example.android.sunshine.app;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -28,7 +25,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.content.PermissionChecker;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,13 +39,10 @@ import android.widget.TextView;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
-import java.net.ConnectException;
-
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
-public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-SharedPreferences.OnSharedPreferenceChangeListener{
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private ForecastAdapter mForecastAdapter;
 
@@ -92,7 +85,6 @@ SharedPreferences.OnSharedPreferenceChangeListener{
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
 
-
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -117,16 +109,15 @@ SharedPreferences.OnSharedPreferenceChangeListener{
 
     @Override
     public void onResume() {
-        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getContext());
-        spf.registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.registerOnSharedPreferenceChangeListener(this);
         super.onResume();
-
     }
 
     @Override
     public void onPause() {
-        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getContext());
-        spf.unregisterOnSharedPreferenceChangeListener(this);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.unregisterOnSharedPreferenceChangeListener(this);
         super.onPause();
     }
 
@@ -165,8 +156,8 @@ SharedPreferences.OnSharedPreferenceChangeListener{
 
         // Get a reference to the ListView, and attach this adapter to it.
         mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        //EmptyView added Ver2
-        mListView.setEmptyView(rootView.findViewById(android.R.id.empty));
+        View emptyView = rootView.findViewById(R.id.listview_forecast_empty);
+        mListView.setEmptyView(emptyView);
         mListView.setAdapter(mForecastAdapter);
         // We'll call our MainActivity
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -275,7 +266,6 @@ SharedPreferences.OnSharedPreferenceChangeListener{
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
         mForecastAdapter.swapCursor(data);
         if (mPosition != ListView.INVALID_POSITION) {
             // If we don't need to restart the loader, and there's a desired position to restore
@@ -283,7 +273,6 @@ SharedPreferences.OnSharedPreferenceChangeListener{
             mListView.smoothScrollToPosition(mPosition);
         }
         updateEmptyView();
-
     }
 
     @Override
@@ -298,39 +287,42 @@ SharedPreferences.OnSharedPreferenceChangeListener{
         }
     }
 
-    private void updateEmptyView(){
-        if(mForecastAdapter.getCount()==0){
-            TextView tv = (TextView) getView().findViewById(android.R.id.empty);
-            if(null!=tv){
-                int message = R.string.empty_forecast_list_string;
+    /*
+        Updates the empty list view with contextually relevant information that the user can
+        use to determine why they aren't seeing weather.
+     */
+    private void updateEmptyView() {
+        if ( mForecastAdapter.getCount() == 0 ) {
+            TextView tv = (TextView) getView().findViewById(R.id.listview_forecast_empty);
+            if ( null != tv ) {
+                // if cursor is empty, why? do we have an invalid location
+                int message = R.string.empty_forecast_list;
                 @SunshineSyncAdapter.LocationStatus int location = Utility.getLocationStatus(getActivity());
-                switch (location){
+                switch (location) {
                     case SunshineSyncAdapter.LOCATION_STATUS_SERVER_DOWN:
                         message = R.string.empty_forecast_list_server_down;
                         break;
                     case SunshineSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
-                        message=R.string.empty_forecast_list_server_error;
+                        message = R.string.empty_forecast_list_server_error;
                         break;
                     case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
-                        message=R.string.empty_forecast_list_invalid_location;
+                        message = R.string.empty_forecast_list_invalid_location;
                         break;
-                    default :
-                        if(!Utility.isNetworkAvailable(getActivity())){
+                    default:
+                        if (!Utility.isNetworkAvailable(getActivity()) ) {
                             message = R.string.empty_forecast_list_no_network;
                         }
                 }
-
                 tv.setText(message);
-
             }
         }
     }
 
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if(key.equals(getString(R.string.pref_location_status_key))){
+        if ( key.equals(getString(R.string.pref_location_status_key)) ) {
             updateEmptyView();
         }
     }
+
 }

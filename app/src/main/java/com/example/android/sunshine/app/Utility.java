@@ -236,6 +236,60 @@ public class Utility {
     }
 
     /**
+     * Helper method to return whether or not Sunshine is using local graphics.
+     *
+     * @param context Context to use for retrieving the preference
+     * @return true if Sunshine is using local graphics, false otherwise.
+     */
+    public static boolean usingLocalGraphics(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String sunshineArtPack = context.getString(R.string.pref_art_pack_sunshine);
+        return prefs.getString(context.getString(R.string.pref_art_pack_key),
+                sunshineArtPack).equals(sunshineArtPack);
+    }
+
+    /**
+     * Helper method to provide the art urls according to the weather condition id returned
+     * by the OpenWeatherMap call.
+     *
+     * @param context Context to use for retrieving the URL format
+     * @param weatherId from OpenWeatherMap API response
+     * @return url for the corresponding weather artwork. null if no relation is found.
+     */
+    public static String getArtUrlForWeatherCondition(Context context, int weatherId) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String formatArtUrl = prefs.getString(context.getString(R.string.pref_art_pack_key),
+                context.getString(R.string.pref_art_pack_sunshine));
+
+        // Based on weather code data found at:
+        // http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
+        if (weatherId >= 200 && weatherId <= 232) {
+            return String.format(Locale.US, formatArtUrl, "storm");
+        } else if (weatherId >= 300 && weatherId <= 321) {
+            return String.format(Locale.US, formatArtUrl, "light_rain");
+        } else if (weatherId >= 500 && weatherId <= 504) {
+            return String.format(Locale.US, formatArtUrl, "rain");
+        } else if (weatherId == 511) {
+            return String.format(Locale.US, formatArtUrl, "snow");
+        } else if (weatherId >= 520 && weatherId <= 531) {
+            return String.format(Locale.US, formatArtUrl, "rain");
+        } else if (weatherId >= 600 && weatherId <= 622) {
+            return String.format(Locale.US, formatArtUrl, "snow");
+        } else if (weatherId >= 701 && weatherId <= 761) {
+            return String.format(Locale.US, formatArtUrl, "fog");
+        } else if (weatherId == 761 || weatherId == 781) {
+            return String.format(Locale.US, formatArtUrl, "storm");
+        } else if (weatherId == 800) {
+            return String.format(Locale.US, formatArtUrl, "clear");
+        } else if (weatherId == 801) {
+            return String.format(Locale.US, formatArtUrl, "light_clouds");
+        } else if (weatherId >= 802 && weatherId <= 804) {
+            return String.format(Locale.US, formatArtUrl, "clouds");
+        }
+        return null;
+    }
+
+    /**
      * Helper method to provide the art resource id according to the weather condition id returned
      * by the OpenWeatherMap call.
      * @param weatherId from OpenWeatherMap API response
@@ -269,62 +323,6 @@ public class Utility {
         }
         return -1;
     }
-
-    /**
-     * Helper method to return whether or not Sunshine is using local graphics.
-     *
-     * @param context Context to use for retrieving the preference
-     * @return true if Sunshine is using local graphics, false otherwise.
-     */
-    public static boolean usingLocalGraphics(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String sunshineArtPack = context.getString(R.string.pref_art_pack_sunshine);
-        return prefs.getString(context.getString(R.string.pref_art_pack_key),
-                sunshineArtPack).equals(sunshineArtPack);
-    }
-
-    public static String getArtUrlForWeatherCondition(Context context, int weatherId){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String formatArtUrl = prefs.getString(context.getString(R.string.pref_art_pack_key),
-                context.getString(R.string.pref_art_pack_sunshine));
-
-        if (weatherId >= 200 && weatherId <= 232) {
-//            return context.getString(R.string.format_art_url, "storm");
-            return String.format(Locale.US, formatArtUrl, "storm");
-        } else if (weatherId >= 300 && weatherId <= 321) {
-//            return context.getString(R.string.format_art_url, "light_rain");
-            return String.format(Locale.US, formatArtUrl, "light_rain");
-        } else if (weatherId >= 500 && weatherId <= 504) {
-//            return context.getString(R.string.format_art_url, "rain");
-            return String.format(Locale.US, formatArtUrl, "rain");
-        } else if (weatherId == 511) {
-//            return context.getString(R.string.format_art_url, "snow");
-            return String.format(Locale.US, formatArtUrl, "snow");
-        } else if (weatherId >= 520 && weatherId <= 531) {
-//            return context.getString(R.string.format_art_url, "rain");
-            return String.format(Locale.US, formatArtUrl, "rain");
-        } else if (weatherId >= 600 && weatherId <= 622) {
-//            return context.getString(R.string.format_art_url, "snow");
-            return String.format(Locale.US, formatArtUrl, "snow");
-        } else if (weatherId >= 701 && weatherId <= 761) {
-//            return context.getString(R.string.format_art_url, "fog");
-            return String.format(Locale.US, formatArtUrl, "fog");
-        } else if (weatherId == 761 || weatherId == 781) {
-//            return context.getString(R.string.format_art_url, "storm");
-            return String.format(Locale.US, formatArtUrl, "storm");
-        } else if (weatherId == 800) {
-//            return context.getString(R.string.format_art_url, "clear");
-            return String.format(Locale.US, formatArtUrl, "clear");
-        } else if (weatherId == 801) {
-//            return context.getString(R.string.format_art_url, "light_clouds");
-            return String.format(Locale.US, formatArtUrl, "light_clouds");
-        } else if (weatherId >= 802 && weatherId <= 804) {
-//            return context.getString(R.string.format_art_url, "clouds");
-            return String.format(Locale.US, formatArtUrl, "clouds");
-        }
-        return null;
-    }
-
 
     /**
      * Helper method to provide the string according to the weather
@@ -504,24 +502,41 @@ public class Utility {
         return context.getString(stringId);
     }
 
-    public static boolean isNetworkAvailable(Context c){
-        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+    /**
+     * Returns true if the network is available or about to become available.
+     *
+     * @param c Context used to get the ConnectivityManager
+     * @return true if the network is available
+     */
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork!=null && activeNetwork.isConnectedOrConnecting();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 
+    /**
+     *
+     * @param c Context used to get the SharedPreferences
+     * @return the location status integer type
+     */
     @SuppressWarnings("ResourceType")
-    public static @SunshineSyncAdapter.LocationStatus int getLocationStatus(Context c){
+    static public @SunshineSyncAdapter.LocationStatus
+    int getLocationStatus(Context c){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         return sp.getInt(c.getString(R.string.pref_location_status_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
     }
 
-    public static void resetCurrentLocationStatus(Context c){
-        SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(c);
-        SharedPreferences.Editor e = spf.edit();
-        e.putInt(c.getString(R.string.pref_location_status_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
-        e.apply(); //use apply instead of commint if this will be called in UI
+    /**
+     * Resets the location status.  (Sets it to SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN)
+     * @param c Context used to get the SharedPreferences
+     */
+    static public void resetLocationStatus(Context c){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putInt(c.getString(R.string.pref_location_status_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
+        spe.apply();
     }
-
-
 }
