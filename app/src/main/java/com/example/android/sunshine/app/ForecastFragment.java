@@ -15,10 +15,12 @@
  */
 package com.example.android.sunshine.app;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -155,6 +157,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+
+
         // Get a reference to the RecyclerView, and attach this adapter to it.
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
 
@@ -162,6 +166,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         View emptyView = rootView.findViewById(R.id.recyclerview_forecast_empty);
 //        mRecyclerView.setAdapter(mForecastAdapter);
+
+
         mForecastAdapter=new ForecastAdapter(getActivity(), new ForecastAdapter.ForecastAdapterOnClickHandler() {
             @Override
             public void onClick(long date, ForecastAdapter.ForecastAdapterViewHolder vh) {
@@ -175,6 +181,25 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         }, emptyView);
 
         mRecyclerView.setAdapter(mForecastAdapter);
+
+        final View parallaxView = rootView.findViewById(R.id.parallax_bar);
+        if(null!= parallaxView){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+                        int max = parallaxView.getHeight();
+                        if(dy > 0){
+                            parallaxView.setTranslationY(Math.max(-max, parallaxView.getTranslationY()-dy/2));
+                        }else{
+                            parallaxView.setTranslationY(Math.min(0, parallaxView.getTranslationY()));
+                        }
+                    }
+                });
+            }
+        }
 
         // We'll call our MainActivity
 //        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
