@@ -50,6 +50,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int mPosition = RecyclerView.NO_POSITION;
     private boolean mUseTodayLayout;
 
+
     private static final String SELECTED_KEY = "selected_position";
 
     private static final int FORECAST_LOADER = 0;
@@ -150,7 +151,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // The ForecastAdapter will take data from a source and
         // use it to populate the RecyclerView it's attached to.
-        mForecastAdapter = new ForecastAdapter(getActivity());
+        //mForecastAdapter = new ForecastAdapter(getActivity(), mClickHandler, mEmptyView);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -159,8 +160,22 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // Set the layout manager
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//        View emptyView = rootView.findViewById(R.id.recyclerview_forecast_empty);
+        View emptyView = rootView.findViewById(R.id.recyclerview_forecast_empty);
+//        mRecyclerView.setAdapter(mForecastAdapter);
+        mForecastAdapter=new ForecastAdapter(getActivity(), new ForecastAdapter.ForecastAdapterOnClickHandler() {
+            @Override
+            public void onClick(long date, ForecastAdapter.ForecastAdapterViewHolder vh) {
+                String locationSetting = Utility.getPreferredLocation(getActivity());
+                    ((Callback) getActivity())
+                            .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, date)
+                            );
+                    mPosition = vh.getAdapterPosition();
+                }
+        }, emptyView);
+
         mRecyclerView.setAdapter(mForecastAdapter);
+
         // We'll call our MainActivity
 //        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //
