@@ -194,7 +194,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                         if(dy > 0){
                             parallaxView.setTranslationY(Math.max(-max, parallaxView.getTranslationY()-dy/2));
                         }else{
-                            parallaxView.setTranslationY(Math.min(0, parallaxView.getTranslationY()));
+                            parallaxView.setTranslationY(Math.min(0, parallaxView.getTranslationY()-dy/2));
                         }
                     }
                 });
@@ -315,6 +315,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             mRecyclerView.smoothScrollToPosition(mPosition);
         }
         updateEmptyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(null!=mRecyclerView){
+            mRecyclerView.clearOnScrollListeners();
+        }
     }
 
     @Override
