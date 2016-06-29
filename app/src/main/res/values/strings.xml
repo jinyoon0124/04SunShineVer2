@@ -46,7 +46,7 @@
     <string name="pref_location_status_key" translatable="false">loc-status</string>
 
     <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
-    <string name="pref_location_default" translatable="false">Jersey City</string>
+    <string name="pref_location_default" translatable="false">94043</string>
 
     <!-- Strings used when displaying the state of the Location in settings -->
     <string name="pref_location_error_description">Invalid Location (<xliff:g id="location_setting">%1$s</xliff:g>)"</string>
@@ -211,6 +211,9 @@
     <string name="condition_962">Hurricane</string>
 
     <string name="condition_unknown">Unknown (<xliff:g id="low">%1$s</xliff:g>)</string>
+
+    <!-- For Shared Element Transitions -->
+    <string name="detail_icon_transition_name" translatable="false">TN_DetailIcon</string>
 
     <!-- Used to form a severe weather alert that reads "Heads up: <weather> in <location>!" -->
     <string name="gcm_weather_alert">Heads up: %1$s in %2$s!</string>
