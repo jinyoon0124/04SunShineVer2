@@ -25,10 +25,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -217,6 +219,22 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     }
                 });
             }
+        }
+
+        final AppBarLayout appbarView=(AppBarLayout) rootView.findViewById(R.id.appbar);
+        if(null!=appbarView){
+            ViewCompat.setElevation(appbarView,0);
+            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    if(0==mRecyclerView.computeVerticalScrollOffset()){
+                        appbarView.setElevation(0);
+                    }else{
+                        appbarView.setElevation(appbarView.getTargetElevation());
+                    }
+                }
+            });
         }
 
         // If there's instance state, mine it for useful information.
