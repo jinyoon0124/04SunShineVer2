@@ -110,7 +110,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
-            //set mTransitionAnimation based on boolean value packaged in Detail_Transition_Animzation
             mTransitionAnimation = arguments.getBoolean(DetailFragment.DETAIL_TRANSITION_ANIMATION, false);
         }
 
@@ -270,7 +269,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         // We need to start the enter transition after the data has loaded
         if ( mTransitionAnimation ) {
-            //Start transitioning... Stops in Detail Activity
             activity.supportStartPostponedEnterTransition();
 
             if ( null != toolbarView ) {

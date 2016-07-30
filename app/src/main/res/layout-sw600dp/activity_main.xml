@@ -35,7 +35,6 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <!-- This Space is only there to line the image up with the
@@ -81,7 +80,7 @@
         android:layout_below="@id/appbar"
         tools:layout="@android:layout/list_content"
         android:choiceMode="singleChoice"
-        android:autoSelectView="true"
+
         />
 
     <!-- This is used to give the card the appropriate margin

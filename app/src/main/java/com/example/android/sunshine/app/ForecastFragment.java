@@ -244,7 +244,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // needs to be re-created. In a standard return transition,
         // this doesn't actually make a difference.
         if ( mHoldForTransition ) {
-            //need to start activity here in case of rotation of screen or activity exited
             getActivity().supportPostponeEnterTransition();
         }
         getLoaderManager().initLoader(FORECAST_LOADER, null, this);
@@ -326,8 +325,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             mRecyclerView.smoothScrollToPosition(mPosition);
         }
         updateEmptyView();
-
-        //Transition Animation
         if ( data.getCount() == 0 ) {
             getActivity().supportStartPostponedEnterTransition();
         } else {
@@ -337,7 +334,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     // Since we know we're going to get items, we keep the listener around until
                     // we see Children.
                     if (mRecyclerView.getChildCount() > 0) {
-                        //View Tree observer finds out when the recyclerview views are added
                         mRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
                         int itemPosition = mForecastAdapter.getSelectedItemPosition();
                         if ( RecyclerView.NO_POSITION == itemPosition ) itemPosition = 0;
@@ -346,7 +342,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                             mForecastAdapter.selectView( vh );
                         }
                         if ( mHoldForTransition ) {
-                            //when have views
                             getActivity().supportStartPostponedEnterTransition();
                         }
                         return true;
