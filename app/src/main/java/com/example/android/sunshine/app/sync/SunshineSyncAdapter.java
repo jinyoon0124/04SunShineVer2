@@ -30,6 +30,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.util.Util;
 import com.example.android.sunshine.app.BuildConfig;
 import com.example.android.sunshine.app.MainActivity;
 import com.example.android.sunshine.app.R;
@@ -92,6 +93,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "Starting sync");
         String locationQuery = Utility.getPreferredLocation(getContext());
+        String locationLatitude = String.valueOf(Utility.getLocationLatitude(getContext()));
+        String locationLongitude = String.valueOf(Utility.getLocationLongitude(getContext()));
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -116,10 +119,27 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             final String UNITS_PARAM = "units";
             final String DAYS_PARAM = "cnt";
             final String APPID_PARAM = "APPID";
+            final String LAT_PARAM="lat";
+            final String LON_PARAM="lon";
+//
+//            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+//                    .appendQueryParameter(QUERY_PARAM, locationQuery)
+//                    .appendQueryParameter(FORMAT_PARAM, format)
+//                    .appendQueryParameter(UNITS_PARAM, units)
+//                    .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+//                    .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+//                    .build();
 
-            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                    .appendQueryParameter(QUERY_PARAM, locationQuery)
-                    .appendQueryParameter(FORMAT_PARAM, format)
+            Uri.Builder uriBuilder = Uri.parse(FORECAST_BASE_URL).buildUpon();
+
+            if(Utility.isLocationLatLonAvailable(getContext())){
+                uriBuilder.appendQueryParameter(LAT_PARAM, locationLatitude)
+                        .appendQueryParameter(LON_PARAM, locationLongitude);
+            }else{
+                uriBuilder.appendQueryParameter(QUERY_PARAM, locationQuery);
+            }
+
+            Uri builtUri = uriBuilder.appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                     .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
