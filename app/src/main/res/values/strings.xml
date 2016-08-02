@@ -225,4 +225,7 @@
     // TODO: Get the SenderID from the Developer Console
     <string name="gcm_defaultSenderId" translatable="false"></string>
     <string name = "attribution_text">Powered by Google</string>
+    
+    <string name="widget_temp_default">76\u00B0</string>
+    <string name="title_widget_today">Today Weather Widget</string>
 </resources>
