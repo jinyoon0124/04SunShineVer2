@@ -85,6 +85,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int LOCATION_STATUS_UNKNOWN = 3;
     public static final int LOCATION_STATUS_INVALID = 4;
 
+    public static final String ACTION_DATA_UPDATED=
+            "com.example.android.sunshine.app.ACTION_DATA_UPDATED";
+
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
@@ -197,6 +200,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         }
+
+
         return;
     }
 
@@ -361,6 +366,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                         WeatherContract.WeatherEntry.COLUMN_DATE + " <= ?",
                         new String[] {Long.toString(dayTime.setJulianDay(julianStartDay-1))});
 
+                updateWidgets();
                 notifyWeather();
             }
             Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
@@ -372,6 +378,12 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             setLocationStatus(getContext(), LOCATION_STATUS_SERVER_INVALID);
         }
     }
+
+    private void updateWidgets(){
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED).setPackage(getContext().getPackageName());
+        getContext().sendBroadcast(dataUpdatedIntent);
+    }
+
 
     private void notifyWeather() {
         Context context = getContext();
