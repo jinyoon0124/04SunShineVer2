@@ -147,6 +147,8 @@
                 android:resource="@xml/widget_info_today"/>
         </receiver>
         <service android:name=".widget.TodayWidgetIntentService"/>
+
+
     </application>
 
 </manifest>

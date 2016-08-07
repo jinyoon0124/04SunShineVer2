@@ -228,4 +228,5 @@
     
     <string name="widget_temp_default">76\u00B0</string>
     <string name="title_widget_today">Today Weather Widget</string>
+    <string name="title_widget_detail">Detail Weather Widget</string>
 </resources>
