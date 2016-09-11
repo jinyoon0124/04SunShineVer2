@@ -367,6 +367,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                         WeatherContract.WeatherEntry.COLUMN_DATE + " <= ?",
                         new String[] {Long.toString(dayTime.setJulianDay(julianStartDay-1))});
 
+                Log.v("PACKAGENAME : ", getContext().getPackageName());
                 updateWidgets();
                 notifyWeather();
                 updateWallPaper();
@@ -385,6 +386,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private void updateWidgets(){
         Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED).setPackage(getContext().getPackageName());
         getContext().sendBroadcast(dataUpdatedIntent);
+        Log.v("SYNC ADAPTER : ", "UPDATE WIDGETS CALLED");
     }
 
     private void updateWallPaper(){

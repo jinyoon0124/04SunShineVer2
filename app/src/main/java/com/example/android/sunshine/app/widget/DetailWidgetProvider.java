@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.example.android.sunshine.app.DetailActivity;
@@ -58,6 +59,7 @@ public class DetailWidgetProvider extends AppWidgetProvider {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.v("WIDGET PROVIDER : " ,"ON RECEIVE IS CALLED");
         super.onReceive(context, intent);
         if(SunshineSyncAdapter.ACTION_DATA_UPDATED.equals(intent.getAction())){
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
