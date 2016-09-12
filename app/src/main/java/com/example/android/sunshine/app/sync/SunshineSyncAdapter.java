@@ -37,6 +37,11 @@ import com.example.android.sunshine.app.R;
 import com.example.android.sunshine.app.Utility;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.muzei.WeatherMuzeiSource;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +58,8 @@ import java.net.URL;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
-public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
+public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter{
+
     public final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
     // Interval at which to sync with the weather, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
@@ -75,6 +81,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int INDEX_MAX_TEMP = 1;
     private static final int INDEX_MIN_TEMP = 2;
     private static final int INDEX_SHORT_DESC = 3;
+
+
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID,  LOCATION_STATUS_UNKNOWN, LOCATION_STATUS_INVALID})
@@ -501,6 +509,39 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
     }
+
+//    private void sendWeatherToWearable() {
+//        Context context = getContext();
+//        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/today-weather");
+//
+//        String locationQuery = Utility.getPreferredLocation(context);
+//        Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
+//
+//        Cursor cursor = context.getContentResolver().query(weatherUri, NOTIFY_WEATHER_PROJECTION, null, null, null);
+//
+//        if (cursor.moveToFirst()) {
+//            int weatherId = cursor.getInt(INDEX_WEATHER_ID);
+//            double high = cursor.getDouble(INDEX_MAX_TEMP);
+//            double low = cursor.getDouble(INDEX_MIN_TEMP);
+//
+//            String highTemp = Utility.formatTemperature(context, high);
+//            String lowTemp = Utility.formatTemperature(context, low);
+//
+////            int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+////            Resources resources = context.getResources();
+////            int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
+////            String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
+//
+//            putDataMapRequest.getDataMap().putString("highTemp", highTemp);
+//            putDataMapRequest.getDataMap().putString("lowTemp", lowTemp);
+//
+//        }
+//        cursor.close();
+//
+//        PutDataRequest request = putDataMapRequest.asPutDataRequest();
+//        Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+//                .setResultCallback();
+//    }
 
     /**
      * Helper method to handle insertion of a new location in the weather database.

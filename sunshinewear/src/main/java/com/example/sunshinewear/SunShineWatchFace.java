@@ -154,6 +154,7 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
         private Paint createTextPaint(int textColor) {
             Paint paint = new Paint();
             paint.setColor(textColor);
+            paint.setTypeface(NORMAL_TYPEFACE);
             paint.setAntiAlias(true);
             paint.setTextAlign(Paint.Align.CENTER);
             return paint;

@@ -15,8 +15,10 @@
  */
 package com.example.android.sunshine.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -30,20 +32,41 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.gcm.RegistrationIntentService;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
-public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback {
+public class MainActivity extends AppCompatActivity
+        implements ForecastFragment.Callback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
 
+    private GoogleApiClient mGoogleApiClient;
     private boolean mTwoPane;
     private String mLocation;
+
+    private static final String[] WEARABLE_WEATHER_PROJECTION = new String[] {
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+    };
+
+    // these indices must match the projection
+    private static final int INDEX_WEATHER_ID = 0;
+    private static final int INDEX_MAX_TEMP = 1;
+    private static final int INDEX_MIN_TEMP = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +118,17 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
                 startService(intent);
             }
         }
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApiIfAvailable(Wearable.API)
+                .build();
+
+        mGoogleApiClient.connect();
+
+        sendWeatherToWearable();
+
     }
 
     @Override
@@ -184,4 +218,64 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         }
         return true;
     }
+
+
+    /*
+    Google Api Client
+     */
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+    public void sendWeatherToWearable() {
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/today-weather");
+
+        String locationQuery = Utility.getPreferredLocation(this);
+        Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
+
+        Cursor cursor = this.getContentResolver().query(weatherUri, WEARABLE_WEATHER_PROJECTION, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int weatherId = cursor.getInt(INDEX_WEATHER_ID);
+            double high = cursor.getDouble(INDEX_MAX_TEMP);
+            double low = cursor.getDouble(INDEX_MIN_TEMP);
+
+            String highTemp = Utility.formatTemperature(this, high);
+            String lowTemp = Utility.formatTemperature(this, low);
+
+//            int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+//            Resources resources = context.getResources();
+//            int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
+//            String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
+
+            putDataMapRequest.getDataMap().putString("highTemp", highTemp);
+            putDataMapRequest.getDataMap().putString("lowTemp", lowTemp);
+
+        }
+        cursor.close();
+
+        PutDataRequest request = putDataMapRequest.asPutDataRequest();
+        Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                    @Override
+                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                        if(!dataItemResult.getStatus().isSuccess()){
+                            Log.e(LOG_TAG, "Failed to send data");
+                        }else{
+                            Log.e(LOG_TAG, "Successfully sent data");
+                        }
+                    }
+                });
+    }
+
 }
