@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,10 +30,18 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
+
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -44,7 +53,8 @@ import java.util.concurrent.TimeUnit;
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
-public class SunShineWatchFace extends CanvasWatchFaceService {
+public class SunShineWatchFace extends CanvasWatchFaceService
+    {
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
@@ -63,6 +73,8 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
     public Engine onCreateEngine() {
         return new Engine();
     }
+
+
 
     private static class EngineHandler extends Handler {
         private final WeakReference<SunShineWatchFace.Engine> mWeakReference;
@@ -92,23 +104,31 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
         Paint mDateTextPaint;
         boolean mAmbient;
         Calendar mCalendar;
-//        Time mTime;
+        private final String ACTION = "com.example.TODAY_WEATHER";
+
+        //        Time mTime;
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 //                mTime.clear(intent.getStringExtra("time-zone"));
 //                mTime.setToNow();
+
                 mCalendar.setTimeZone(TimeZone.getDefault());
                 invalidate();
 
             }
         };
+
+
         int mTapCount;
 
         float mXOffset;
         float mYOffset;
 
         float mLineHeight;
+        private final String PATH = "/today-weather";
+        String mLowTemp;
+
 
         SimpleDateFormat mDateFormat;
         /**
@@ -120,7 +140,6 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
-
             setWatchFaceStyle(new WatchFaceStyle.Builder(SunShineWatchFace.this)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
@@ -186,6 +205,7 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             SunShineWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+
         }
 
         private void unregisterReceiver() {
@@ -293,9 +313,15 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
             canvas.drawText(text, canvas.getWidth()/2, mYOffset, mTimeTextPaint);
             canvas.drawText(mDateFormat.format(mCalendar.getTime()).toUpperCase(), canvas.getWidth()/2, (float)(mYOffset+mLineHeight*1.5), mDateTextPaint);
 
+            SharedPreferences spf = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            mLowTemp = spf.getString("lowTemp", "Default");
+            canvas.drawText(mLowTemp, mXOffset, mYOffset+mLineHeight*3, mTimeTextPaint);
+
+
 
 
         }
+
 
         /**
          * Starts the {@link #mUpdateTimeHandler} timer if it should be running and isn't currently
@@ -313,7 +339,7 @@ public class SunShineWatchFace extends CanvasWatchFaceService {
          * only run when we're visible and in interactive mode.
          */
         private boolean shouldTimerBeRunning() {
-            return isVisible() && !isInAmbientMode();
+            return !isInAmbientMode();
         }
 
         /**

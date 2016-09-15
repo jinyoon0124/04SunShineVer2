@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private boolean mTwoPane;
     private String mLocation;
+    private final String PATH = "/today-weather";
 
     private static final String[] WEARABLE_WEATHER_PROJECTION = new String[] {
             WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
@@ -122,12 +123,10 @@ public class MainActivity extends AppCompatActivity
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApiIfAvailable(Wearable.API)
+                .addApi(Wearable.API)
                 .build();
 
-        mGoogleApiClient.connect();
 
-        sendWeatherToWearable();
 
     }
 
@@ -152,6 +151,20 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+        sendWeatherToWearable();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -238,7 +251,7 @@ public class MainActivity extends AppCompatActivity
 
     }
     public void sendWeatherToWearable() {
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/today-weather");
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(PATH);
 
         String locationQuery = Utility.getPreferredLocation(this);
         Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
@@ -260,7 +273,7 @@ public class MainActivity extends AppCompatActivity
 
             putDataMapRequest.getDataMap().putString("highTemp", highTemp);
             putDataMapRequest.getDataMap().putString("lowTemp", lowTemp);
-
+            Log.e("SENDWEATHER DATA :::" , lowTemp);
         }
         cursor.close();
 
